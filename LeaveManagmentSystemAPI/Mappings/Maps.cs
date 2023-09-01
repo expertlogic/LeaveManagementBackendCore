@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.Response;
 using LeaveManagmentSystemAPI.Data;
 using LeaveManagmentSystemAPI.Models;
 using System;
@@ -12,11 +13,13 @@ namespace LeaveManagmentSystemAPI.Mappings
     {
         public Maps()
         {
-            CreateMap<LeaveType, LeaveTypeVM>().ReverseMap();
+            CreateMap<LeaveTypes, LeaveTypeVM>().ReverseMap();
             CreateMap<LeaveRequest, LeaveRequestVM>().ReverseMap();
             CreateMap<LeaveAllocation, LeaveAllocationVM>().ReverseMap();
             CreateMap<LeaveAllocation, EditLeaveAllocationVM>().ReverseMap();
             CreateMap<Employee, EmployeeVM>().ReverseMap();
+            CreateMap<Employee, ApplicationUser>().ReverseMap();
+            
         }
     }
 }

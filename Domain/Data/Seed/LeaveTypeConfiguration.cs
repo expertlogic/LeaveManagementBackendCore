@@ -9,35 +9,35 @@ using System.Threading.Tasks;
 
 namespace LeaveManagmentSystemAPI
 {
-    public class LeaveTypeConfiguration : IEntityTypeConfiguration<LeaveType>
+    public class LeaveTypeConfiguration : IEntityTypeConfiguration<LeaveTypes>
     {
-        public void Configure(EntityTypeBuilder<LeaveType> builder)
+        public void Configure(EntityTypeBuilder<LeaveTypes> builder)
         {
 
             builder.HasData
             (
-                 new LeaveType
+                 new LeaveTypes
                  {
                      Id =1,
                      DefaultDays =15,
                      Name = "Sick Leave",
                      DateCreated = DateTime.Now
                  } ,
-                 new LeaveType
+                 new LeaveTypes
                  {
                      Id =2,
                      DefaultDays = 22,
                      Name = "Annual Leave",
                      DateCreated = DateTime.Now
                  },
-                 new LeaveType
+                 new LeaveTypes
                  {
                      Id = 3,
                      DefaultDays = 5,
                      Name = "Maternity Leave",
                      DateCreated = DateTime.Now
                  },
-                 new LeaveType
+                 new LeaveTypes
                  {
                      Id = 4,
                      DefaultDays = 10,

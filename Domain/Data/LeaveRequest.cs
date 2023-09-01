@@ -9,6 +9,10 @@ namespace LeaveManagmentSystemAPI.Data
 {
     public class LeaveRequest
     {
+        LeaveRequest() {
+            //this.RequestingEmployee = new HashSet<Employee>();
+        }
+
         [Key]
         public int Id { get; set; }
 
@@ -17,8 +21,9 @@ namespace LeaveManagmentSystemAPI.Data
         public string RequestingEmployeeId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        
         [ForeignKey("LeaveTypeId")]
-        public virtual LeaveType LeaveType { get; set; }
+        public virtual LeaveTypes LeaveType { get; set; }
         public int LeaveTypeId { get; set; }
         public DateTime DateRequested { get; set; }
         public string RequestComments { get; set; }
@@ -26,8 +31,9 @@ namespace LeaveManagmentSystemAPI.Data
         public bool? Approved { get; set; }
         public bool? isTravelRequired { get; set; }
         public bool Cancelled { get; set; }
+       
         [ForeignKey("ApprovedById")]
-        public Employee ApprovedBy { get; set; }
+        public virtual Employee ApprovedBy { get; set; }
         public string ApprovedById { get; set; }
     }
 }

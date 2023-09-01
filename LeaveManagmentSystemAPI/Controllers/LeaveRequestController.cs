@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
 using Domain.Response;
 using Infrastructure.Contracts;
+using LeaveManagmentSystemAPI.Core;
 using LeaveManagmentSystemAPI.Data;
+using LeaveManagmentSystemAPI.Extensions;
 using LeaveManagmentSystemAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ServiceStack;
 using System;
@@ -27,6 +30,7 @@ namespace LeaveManagmentSystemAPI.Controllers
         private readonly ILeaveTypeRepository _leaveTypeRepo;
         private readonly ILeaveAllocationRepository _leaveAllocRepo;
         private readonly IMapper _mapper;
+        private readonly IUserContext _userContext;
         private readonly UserManager<Employee> _userManager;
 
         public LeaveRequestController(
@@ -34,6 +38,7 @@ namespace LeaveManagmentSystemAPI.Controllers
             ILeaveTypeRepository leaveTypeRepo,
             ILeaveAllocationRepository leaveAllocRepo,
             IMapper mapper,
+            IUserContext userContext,
             UserManager<Employee> userManager
         )
         {
@@ -41,17 +46,35 @@ namespace LeaveManagmentSystemAPI.Controllers
             _leaveTypeRepo = leaveTypeRepo;
             _leaveAllocRepo = leaveAllocRepo;
             _mapper = mapper;
+            _userContext = userContext;
             _userManager = userManager;
         }
 
 
-        //[Authorize(Roles = "Administrator")]
+
         // GET: LeaveRequestController
+         //[Authorize(Roles = "Administrator")]
         [HttpGet]
-        public ActionResult Get()
+        public async Task<ActionResult> Get()
         {
-            var leaveRequests = _leaveRequestRepo.FindAll();
+            IEnumerable<LeaveRequest> leaveRequests;
+            if(_userContext.Profile.UserRole == "Administrator")
+            {
+                leaveRequests = await _leaveRequestRepo.FindByInclude(X => X.Id > 0, null, "LeaveType");
+            }
+            else
+            {
+                leaveRequests = await _leaveRequestRepo.FindByInclude(X => X.RequestingEmployeeId  == _userContext.Profile.UserId, null, "LeaveType");
+            }
+
             var leaveRequestsModel = _mapper.Map<List<LeaveRequestVM>>(leaveRequests);
+
+            //var LeaveHistories = _db.LeaveRequests
+            //  .Include(q => q.RequestingEmployee)
+            //  .Include(q => q.ApprovedBy)
+            //  .Include(q => q.LeaveType)
+            //  .ToList();
+
             var model = new AdminLeaveRequestViewVM
             {
                 TotalRequests = leaveRequestsModel.Count,
@@ -70,10 +93,10 @@ namespace LeaveManagmentSystemAPI.Controllers
 
             try
             {
-
+                var userId = Request.HttpContext.GetClaimValue("userId");
                 var startDate = Convert.ToDateTime(model.StartDate);
                 var endDate = Convert.ToDateTime(model.EndDate);
-                var leaveTypes = _leaveTypeRepo.FindAll();
+                var leaveTypes = await _leaveTypeRepo.FindAll();
                 var leaveTypeItems = leaveTypes.Select(q => new SelectListItem
                 {
                     Text = q.Name,
@@ -112,15 +135,18 @@ namespace LeaveManagmentSystemAPI.Controllers
                     DateRequested = DateTime.Now,
                     DateActioned = DateTime.Now,
                     LeaveTypeId = model.LeaveTypeId,
+                    isTravelRequired = model.isTravelRequired,
                     RequestComments = model.RequestComments
                 };
 
                 var leaveRequest = _mapper.Map<LeaveRequest>(leaveRequestModel);
 
-                
-               // var isSuccess = _leaveRequestRepo.CreateByProc(leaveRequest);
-                var isSuccess = _leaveRequestRepo.Create(leaveRequest);
 
+                 var isSuccess = _leaveRequestRepo.CreateByProc(leaveRequest);
+                //await _leaveRequestRepo.AddAsync(leaveRequest);
+                //await _leaveRequestRepo.SaveChangesAsync();
+
+                //var isSuccess = leaveRequest.Id > 0;
                 if (!isSuccess)
                 {
                     data.statusCode = "ERROR";
@@ -139,12 +165,12 @@ namespace LeaveManagmentSystemAPI.Controllers
             {
                 data.statusCode = "ERROR";
                 data.message = ex.Message;
-               return BadRequest(data);
+                return BadRequest(data);
 
             }
         }
 
-       
+
 
     }
 }

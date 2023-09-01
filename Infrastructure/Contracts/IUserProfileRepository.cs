@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Contracts
 {
-    public interface ILeaveTypeRepository : IRepositoryBase<LeaveTypes>
+    public interface IUserProfileRepository : IRepositoryBase<Employee>
     {
-        Task<ICollection<LeaveTypes>> FindAllUsingStoreProc();
-
+        Task<Employee> GetByUserIdAsync(string userId);
     }
 }

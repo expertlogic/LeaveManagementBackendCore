@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using LeaveManagmentSystemAPI.Helpers;
 using LeaveManagmentSystemAPI.Extensions;
+using ServiceStack;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +37,9 @@ builder.Services.AddIdentity<Employee, IdentityRole>(opt =>
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
+
+
+
 builder.Services.AddAuthentication(opt =>
 {
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -55,13 +60,13 @@ builder.Services.AddAuthentication(opt =>
 });
 
 builder.Services.AddScoped<JwtHandler>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.ConfigureRepositoryManager();
 
 // Add services to the container.
 
 
-builder.Services.AddHttpContextAccessor();
 
 //filters
 builder.Services.AddControllers(options =>
@@ -78,6 +83,11 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddAutoMapper(typeof(Maps));
+
+builder.Services.AddAuthorization(options =>
+            options.AddPolicy("Role",
+                policy => policy.RequireClaim(claimType: ClaimTypes.Role, "Administrator")));
+
 
 builder.Services.AddSwaggerGen();
 

@@ -1,3 +1,4 @@
+using LeaveManagmentSystemAPI.Core;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeaveManagmentSystemAPI.Controllers
@@ -12,15 +13,21 @@ namespace LeaveManagmentSystemAPI.Controllers
     };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly IUserContext _userContext;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger
+            , IUserContext userContext)
         {
             _logger = logger;
+            _userContext = userContext;
         }
 
         [HttpGet("GetWeatherForecast")]
         public IEnumerable<WeatherForecast> GetWeatherForecast()
         {
+            var user = _userContext.Profile;
+
+
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),

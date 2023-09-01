@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace LeaveManagmentSystemAPI.Controllers
 {
-     [Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class LeaveTypesController : BaseController
@@ -25,12 +25,12 @@ namespace LeaveManagmentSystemAPI.Controllers
             _repo = repo;
             _mapper = mapper;
         }
-       
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var leavetypes = _repo.FindAllUsingStoreProc().ToList();
-            var model = _mapper.Map<List<LeaveType>, List<LeaveTypeVM>>(leavetypes);
+            var leavetypes = await _repo.FindAllUsingStoreProc();
+            var model = _mapper.Map<List<LeaveTypes>, List<LeaveTypeVM>>(leavetypes.ToList());
             return Ok(model);
         }
     }

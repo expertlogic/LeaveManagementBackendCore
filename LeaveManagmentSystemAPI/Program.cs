@@ -143,6 +143,10 @@ using (var scope = app.Services.CreateScope())
     {
         var userManager = services.GetRequiredService<UserManager<Employee>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var appDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        appDbContext.Database.Migrate();
+
         SeedData.Seed(userManager, roleManager);
     }
     catch (Exception)
